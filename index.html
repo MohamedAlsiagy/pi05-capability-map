@@ -180,11 +180,6 @@ video { width: 100%; height: auto; display: block; border-radius: 8px; backgroun
 .legend i { display: inline-block; width: 16px; height: 3px; border-radius: 2px; vertical-align: middle; margin-right: 6px; }
 .legend i.dash { background: repeating-linear-gradient(90deg, var(--lc) 0 5px, transparent 5px 8px); }
 .legend i.dot { background: repeating-linear-gradient(90deg, var(--lc) 0 2px, transparent 2px 5px); }
-.method { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: 16px; }
-.mcard { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 16px 18px; }
-.mcard h3 { font-size: 18px; margin-bottom: 8px; }
-.mcard ul { margin: 0; padding-left: 18px; display: grid; gap: 7px; font-size: 15px; }
-.mcard code { font: 500 13.5px var(--mono); }
 /* training data */
 .tline { font-size: 18px; color: var(--ink-2); max-width: 72ch; margin: 0 0 20px; }
 .envbox { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; font-size: 15.5px; color: var(--ink-2); max-width: 980px; }
@@ -648,7 +643,6 @@ QUESTIONS.forEach(q => {
 });
 SLIDES.push({ kind: "compute", c: "--c0", crumb: "<b>Method</b> · how a result is computed", key: "compute" });
 SLIDES.push({ kind: "glance", c: "--c0", crumb: "<b>Method</b> · all experiments, episodes and time", key: "glance" });
-SLIDES.push({ kind: "method", c: "--c0", crumb: "<b>Method</b> · protocol and limits", key: "method" });
 SLIDES[0].key = "overview";
 
 function bars(groups, xf) {  // bar colour = the family the runs come from (row label, group title, or the experiment's only family); slate = several pooled
@@ -805,27 +799,6 @@ function glance() {
     <p class="vcap" style="margin-top:8px">“2 GPUs” = the experiment's share of the parallel run (its series time ÷ ${SPEEDUP.toFixed(1)}). Times ${esc(TIMES.note)}. The 20-task set = 8 kitchen, 6 grocery and 6 spatial tasks. One-object tasks = the 28 trained tasks with a single object to grasp.</p>`;
 }
 
-function method() {
-  return `<div class="qhead"><span class="qn">How it was tested</span><h2>Method and limits</h2></div><div class="method">
-  <div class="mcard"><h3>Protocol</h3><ul>
-    <li>One model: the official <b>pi05_libero</b> checkpoint from Physical Intelligence (openpi), as released. Nothing trained or fine-tuned.</li>
-    <li>LIBERO simulation, LangGap's starting scenes. All versions of a task start from the same scenes, so they are compared run by run.</li>
-    <li>Instructions use the wording π0.5 was trained on, unless the experiment changes them.</li>
-    <li>Up to 300 steps per run (long LIBERO-10 tasks: 520). Success is read from the simulator, not judged by a model.</li>
-    <li>10 runs per setup (5 for C4, C5, E2–E4, H2–H4 and most of E5; 20 for A2). Rates are pooled per scene type; differences tested run by run (McNemar).</li></ul></div>
-  <div class="mcard"><h3>Read with care</h3><ul>
-    <li>Per task, 10 runs only show big differences (5 of 10 could be anywhere from 24% to 76%); the conclusions use pooled numbers.</li>
-    <li>Scene changes are synthetic: flat colours, teleported objects, removed objects.</li>
-    <li>E2's red bowl contradicts “black bowl” in the spatial scenes; E5 uses only colours a vision model confirmed.</li>
-    <li>F1–F3 use kitchen images only; F2 uses 20 images and 6 instruction pairs.</li>
-    <li>Each video is the first run of its setup, chosen to show the typical behaviour; the bars give the rates.</li></ul></div>
-  <div class="mcard"><h3>Where it lives</h3><ul>
-    <li>Design: <code>docs/diagnostic/DESIGN.md</code></li>
-    <li>Code: <code>vla_lab/diag/</code></li>
-    <li>All runs, videos and tables: <code>outputs/diag/</code> on the lab (<code>report.md</code>)</li>
-    <li>This app: <code>docs/diagnostic/presentation/</code></li></ul></div></div>`;
-}
-
 const app = document.getElementById("app"), slideEl = document.getElementById("slide"), side = document.getElementById("side");
 
 side.innerHTML = famTag(`<div class="side-title">π0.5 capability map</div><div class="side-sub">Official pi05_libero · LIBERO · nothing trained</div>
@@ -836,8 +809,7 @@ side.innerHTML = famTag(`<div class="side-title">π0.5 capability map</div><div 
     ${q.exps.map(x => `<button class="nav-x" type="button" data-go="${x.id}"><i>${x.id}</i><span>${esc(x.name)}</span></button>`).join("")}</div>`).join("")}
   <div class="nav-group" style="--c: var(--c0)"><button class="nav-q" type="button" data-go="compute"><i class="dot"></i><span><b>Method</b>How it was tested</span></button>
     <button class="nav-x" type="button" data-go="compute"><i>1</i><span>How a result is computed</span></button>
-    <button class="nav-x" type="button" data-go="glance"><i>2</i><span>All experiments and time</span></button>
-    <button class="nav-x" type="button" data-go="method"><i>3</i><span>Protocol and limits</span></button></div>`);
+    <button class="nav-x" type="button" data-go="glance"><i>2</i><span>All experiments and time</span></button></div>`);
 document.getElementById("fkey").innerHTML = FAM_ORDER.map(f => `<button class="fki${f === "l90" ? " l90" : ""}" type="button" data-go="${FAMS[f].go}" style="--f: var(--f-${f})" title="${FAMS[f].name} · ${FAMS[f].suite}"><i></i>${FAMS[f].short}</button>`).join("");
 
 let cur = 0;
@@ -847,7 +819,7 @@ function show(i) {
   slideEl.style.setProperty("--c", `var(${s.c})`);
   document.querySelector(".stage").style.setProperty("--c", `var(${s.c})`);
   slideEl.innerHTML = famTag(s.kind === "cover" ? cover() : s.kind === "train" ? trainOverview() : s.kind === "suite" ? suiteSlide(s.su)
-    : s.kind === "question" ? question(s.q) : s.kind === "exp" ? experiment(s.x) : s.kind === "compute" ? compute() : s.kind === "glance" ? glance() : method());
+    : s.kind === "question" ? question(s.q) : s.kind === "exp" ? experiment(s.x) : s.kind === "compute" ? compute() : glance());
   slideEl.classList.remove("enter"); void slideEl.offsetWidth; slideEl.classList.add("enter");
   document.getElementById("crumb").innerHTML = s.crumb;
   document.getElementById("count").textContent = `${cur + 1} / ${SLIDES.length}`;
