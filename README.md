@@ -1,7 +1,7 @@
 # π0.5 capability map
 
 What the official π0.5 (`pi05_libero`) understands and can do in the LIBERO simulation: 6 questions, 28 experiments,
-10,190 simulated episodes, nothing trained or fine-tuned.
+10,059 simulated episodes, the released checkpoint evaluated as is.
 
 **Open it: https://mohamedalsiagy.github.io/pi05-capability-map/** (or download this repository and open `index.html` in Chrome or Firefox)
 
