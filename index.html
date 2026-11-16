@@ -767,7 +767,7 @@ function compute() {
       <li><span><b>Running.</b> π0.5 gets both camera images and the prompt and returns 10 actions; 5 are executed, then it is asked again. At most 300 steps (LIBERO-10: 520, LIBERO-90: 400).</span></li>
       <li><span><b>Success.</b> After every step the simulator checks the task's goal from its task file, e.g. “the bowl is on the stove's cooking area” or “the top drawer is open”. No person or model judges it. The episode stops at success.</span></li>
       <li><span><b>Extra measurements.</b> Logged every step: the first object grasped, objects touched, where the gripper started to close, the hand's path, object positions at start and end, and whether another trained task's goal came true.</span></li>
-      <li><span><b>Numbers.</b> Rate = successes ÷ episodes, with a 95% range. A condition is compared with the normal run start by start, counting only the starts where one of the two succeeded and the other did not (McNemar test). Rates are pooled per suite; a single task's 10 runs appear only as examples. Repeating a run with nothing changed altered the outcome in 13 of 100 LIBERO-10 runs, so differences of a few points are within run-to-run variation.</span></li>
+      <li><span><b>Numbers.</b> Rate = successes ÷ episodes, with a 95% range. A condition is compared with the normal run start by start, counting only the starts where one of the two succeeded and the other did not (McNemar test). Rates are pooled per suite; a single task's 10 runs appear only as examples. Repeating the normal run on the same 400 starts changed the outcome of 8 runs (7 of them on the long LIBERO-10 tasks; 389 and 387 successes), so differences of a few points are within run-to-run variation.</span></li>
     </ol>`;
 }
 
