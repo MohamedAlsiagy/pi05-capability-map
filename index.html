@@ -354,14 +354,14 @@ const QUESTIONS = [
   { id: "A1", name: "Change the words", n: "2,000 episodes", sum: "No words: 56% overall, 67–74% in one-task scenes",
     did: "40 trained tasks, each run from the same 10 starting scenes with 5 versions of the instruction.",
     why: "If π0.5 uses the words, wrong words or no words should make it fail.",
-    prompts: [["trained wording", "put the bowl on the stove"], ["LangGap's wording", "Put the bowl on the stove"], ["words shuffled", "the put stove the on bowl"],
+    prompts: [["trained wording", "put the bowl on the stove"], ["LangGap's wording", "Put the bowl on the top of the drawer"], ["words shuffled", "the put stove the on bowl"],
               ["another suite's task", "pick up the cream cheese and place it in the basket"], ["no words", ""]],
-    promptNote: "Shown for the kitchen task “put the bowl on the stove”; every task got the same 5 kinds.",
+    promptNote: "Shown for the kitchen task “put the bowl on the stove”; LangGap's wording is shown for “put the bowl on top of the cabinet”. Every task got the same 5 kinds. LangGap's wording differs from the trained one in 25 of the 40 tasks; for the 10 LIBERO-10 tasks it is the same.",
     videos: [vid("a1_words", "Same start. Right: no words, so it opens the top drawer and puts the bowl inside, another task trained in this kitchen.", "kitchen"),
              vid("a1_object_empty", "No words: it still puts the bbq sauce in the basket, the one task trained in this scene.", "grocery")],
-    result: [{ t: "Success, all 40 tasks", rows: [["trained wording", 97, "ref"], ["LangGap's wording", 94], ["words shuffled", 96], ["another suite's task", 33], ["no words", 56]] },
+    result: [{ t: "Success, all 40 tasks (95% range in brackets)", rows: [["trained wording", 97, "ref"], ["LangGap's wording (the 25 tasks it changes)", 97, null, "97% · trained 98%"], ["words shuffled", 96, null, "96% (94–98)"], ["another suite's task", 33], ["no words", 56]] },
              { t: "No words, by kind of scene", rows: [["kitchen (10 tasks in one scene)", 10], ["grocery scenes (1 task each)", 74], ["spatial scenes (1 task each)", 67], ["LIBERO-10 (1–2 tasks each)", 71]] }],
-    meaning: "Wording and word order hardly matter. Where a scene was trained with only one task, the scene alone is enough." },
+    meaning: "LangGap's wording and shuffled words cause no measurable loss. Where a scene was trained with only one task, the scene alone is enough." },
   { id: "A2", name: "One scene, ten instructions", n: "200 episodes", sum: "10 instructions → 10 different, correct behaviours",
     did: "In the LIBERO-Goal kitchen, 10 tasks were trained in the same scene. We gave each of the 10 instructions from the same 20 starting scenes.",
     why: "If the words were ignored, the same scene would always give the same behaviour.",
@@ -374,7 +374,7 @@ const QUESTIONS = [
     why: "Compares the pull of the words with the pull of what the robot sees.",
     prompts: [["right words", "put the bowl on the stove"], ["no words", ""], ["another suite's task", "pick up the cream cheese and place it in the basket"], ["another task in this kitchen", "put the wine bottle on top of the cabinet"]],
     offline: "Offline analysis: the robot does not move, so there is no video. π0.5 is only asked for its next actions on saved frames.",
-    result: [{ t: "Turn of the hand's direction, at the start of a run (degrees)", max: 100, rows: [["words changed", 36, null, "11–36°"], ["image changed", 41, null, "5–41°"], ["same words, resampled", 4, "ref", "1–4°"]] },
+    result: [{ t: "Turn of the hand's direction, at the start of a run (degrees)", max: 100, rows: [["words changed", 36, null, "11–36°"], ["image changed", 41, null, "5–41°"], ["same words, resampled", 4, "ref", "2–4°"]] },
              { t: "Later in the run, steps 40–80 (degrees)", max: 100, rows: [["words changed", 13, null, "3–13°"], ["image changed", 99, null, "15–99°"]] }],
     meaning: "The words steer mostly at the start; after that, what the robot sees drives the action." },
   { id: "B3", name: "Same meaning, other words", n: "1,000 episodes", sum: "92–98% with rewordings (98% trained wording)",
@@ -384,8 +384,8 @@ const QUESTIONS = [
               ["other word order", "on the stove, put the bowl"], ["extra words", "please put the bowl on the stove now"]],
     promptNote: "Shown for the kitchen task “put the bowl on the stove”; each of the 20 tasks got its own 5 rewordings.",
     videos: [vid("b3_reword", "Same start: “stove” and “cooktop” both work.", "kitchen")],
-    result: [{ t: "Success, same starts", rows: [["trained wording", 98, "ref"], ["extra words", 98], ["other word order", 96], ["other verb", 96], ["other word for the object", 94], ["other word for the target", 92]] }],
-    meaning: "It understands the meaning. Other words for the target cost the most (85% in the kitchen)." },
+    result: [{ t: "Success, same starts (95% range in brackets)", rows: [["trained wording", 98, "ref"], ["extra words", 98, null, "98% (96–99)"], ["other word order", 96, null, "96% (92–98)"], ["other verb", 96, null, "96% (92–98)"], ["other word for the object", 94, null, "94% (90–97)"], ["other word for the target", 92, null, "92% (87–95)"]] }],
+    meaning: "It understands the meaning. Extra words, another word order or another verb: no measurable loss. Other words for the object or the target cost a few points: the target mostly in the kitchen (85%), the object mostly in the grocery scenes (87%)." },
   { id: "B5", name: "Ask for an object that isn't there", n: "280 episodes", sum: "Does the scene's trained task anyway: 43–98%",
     did: "We took a trained instruction and swapped its object for one that does not exist in the scene.",
     why: "If it reads the object word, it should not just do the usual task.",
@@ -400,44 +400,44 @@ const QUESTIONS = [
     prompts: [["from the start", "put the bowl on the stove"], ["from step 25", "put the wine bottle on top of the cabinet"]],
     videos: [vid("h1_switch", "It takes the bowl (the old object) to the cabinet top (the new place).", "kitchen")],
     result: [{ t: "Did the new task", rows: [["changed at step 25", 24], ["changed at step 60", 11]] },
-             { t: "Did the first task instead", rows: [["changed at step 25", 21, "ref"], ["changed at step 60", 40, "ref"]] }],
+             { t: "Did the first task instead", rows: [["changed at step 25", 20, "ref"], ["changed at step 60", 36, "ref"]] }],
     meaning: "A changed instruction is mostly not followed, and the later it comes, the less." }
   ] },
 { id: "q2", c: "--c0", num: "Question 2", short: "Different scenes",
   q: "Can it pick up objects in a different scene or look?", verdict: ["part", "Partly"],
-  answer: "How things look does not matter. In tasks it never saw, it succeeds about a third of the time: when the object and the words are familiar.",
-  findings: ["Colour, light, table, camera: <b>96–99%</b> (E2, E3, E5).",
-             "Never-seen LIBERO-90 tasks: <b>29–34%</b>. Familiar objects work (up to 10/10); unfamiliar ones fail (0/10) (E1)."],
+  answer: "Changes in how things look cause no measurable loss. In tasks it never saw, it succeeds about a third of the time: when the object and the words are familiar.",
+  findings: ["Colour, light, table, camera: <b>96–99%</b>, no measurable loss (E2, E3, E5).",
+             "Never-seen LIBERO-90 tasks: <b>about a third</b> (29% in trained scenes, 34% in new ones). Familiar objects work (up to 10/10); unfamiliar ones fail (0 or 1 of 10) (E1)."],
   exps: [
-  { id: "E1", name: "Tasks and scenes it never saw", n: "270 episodes", sum: "29% (trained scene) · 34% (new scene)",
+  { id: "E1", name: "Tasks and scenes it never saw", n: "270 episodes", sum: "About a third: 29% (trained scene) · 34% (new scene)",
     did: "27 tasks from LIBERO-90, which π0.5 was not trained on: 10 new tasks in scenes it was trained in, and 17 with familiar objects in new kitchens and living rooms.",
     why: "Can it pick up familiar objects in a scene it has never seen?",
     prompts: [["new kitchen", "put the black bowl on the plate"], ["new kitchen, new object", "put the white bowl on the plate"], ["trained scene, new task", "put the moka pot on the stove"]],
     videos: [vid("e1_new_ok", "The black bowl goes onto the plate.", "l90", "LIBERO-90, new kitchen"), vid("e1_new_fail", "It never picks up the white bowl.", "l90", "LIBERO-90, new kitchen")],
     result: [{ t: "Success", rows: [["trained scene, new task", 29], ["new scene", 34]] },
-             { t: "Examples (10 runs each)", rows: [["moka pot on the stove", 100], ["black bowl on the plate, new kitchen", 100], ["soup or pudding in a tray", 100], ["ketchup, milk, red mug, white bowl", 0]] }],
-    meaning: "A familiar object with familiar words carries over to a new scene; unfamiliar objects fail." },
+             { t: "Examples (10 runs per task)", rows: [["moka pot on the stove", 100], ["black bowl on the plate, one new kitchen", 100], ["black bowl on the plate, another new kitchen", 60], ["soup or pudding in a tray", 100], ["ketchup, milk, red mug, white bowl (8 tasks)", 1, null, "1 of 80"]] }],
+    meaning: "A familiar object with familiar words carries over to a new scene; unfamiliar objects fail. Most tasks succeed in all 10 runs or in none, so 29% and 34% do not differ: both are about a third." },
   { id: "E2", name: "Light, camera, object colour", n: "400 episodes", sum: "96–99% (normal 100%)",
-    did: "Same tasks and starts, but the asked-for object painted red, the light dimmed (25% darker), the scene camera moved 5 cm, or turned 5°.",
+    did: "Same tasks and starts, but the asked-for object painted red, the lights scaled to 35% (pictures 25–33% darker), the scene camera moved 5 cm, or turned 5°.",
     why: "Does it depend on exactly how the scene looks?",
     prompts: [["all four changes", SAME]],
     videos: [vid("e2_camera", "Same start with the camera turned 5°: still done.", "kitchen")],
-    result: [{ t: "Success, same starts", rows: [["normal", 100, "ref"], ["object painted red", 99], ["light dimmed", 99], ["camera moved 5 cm", 96], ["camera turned 5°", 97]] }],
-    meaning: "Small changes in how things look do not matter." },
+    result: [{ t: "Success, same starts (95% range in brackets)", rows: [["normal", 100, "ref"], ["object painted red", 99, null, "99% (95–100)"], ["light dimmed", 99, null, "99% (95–100)"], ["camera moved 5 cm", 96, null, "96% (90–98)"], ["camera turned 5°", 97, null, "97% (92–99)"]] }],
+    meaning: "Small changes in how things look cause no measurable loss. With 100 runs each, a loss of up to about 10 points cannot be excluded." },
   { id: "E3", name: "Table colour", n: "300 episodes", sum: "96–99% (normal 100%)",
     did: "The table top painted white, dark or blue (grocery scenes: the floor).",
     why: "Does it rely on the table's usual look?",
     prompts: [["all three colours", SAME]],
     videos: [vid("e3_table", "Dark table: done.", "kitchen")],
-    result: [{ t: "Success, same starts", rows: [["normal", 100, "ref"], ["white", 97], ["dark", 96], ["blue", 99]] }],
-    meaning: "The table's look is not what it relies on." },
-  { id: "E5", name: "Colours that keep the meaning", n: "240 episodes", sum: "96–99% (same as normal)",
+    result: [{ t: "Success, same starts (95% range in brackets)", rows: [["normal", 100, "ref"], ["white", 97, null, "97% (92–99)"], ["dark", 96, null, "96% (90–98)"], ["blue", 99, null, "99% (95–100)"]] }],
+    meaning: "The table's colour causes no measurable loss. With 100 runs each, a loss of up to about 10 points cannot be excluded." },
+  { id: "E5", name: "Colours that keep the meaning", n: "240 episodes", sum: "96–99%, no measurable loss",
     did: "We recoloured the target, the other objects, or a bowl or plate, using only colours that a separate vision model (Qwen2.5-VL) still recognised as the same object.",
     why: "Tests colour alone, without turning the object into something else. A white stove was called a “sink”, so white was not used for the stove.",
     prompts: [["all three changes", SAME]],
     videos: [vid("e5_colours", "Bowl and bottle recoloured: done.", "kitchen")],
-    result: [{ t: "Success, same starts", rows: [["normal", 99, "ref"], ["target recoloured", 99], ["other objects recoloured", 99], ["bowl or plate recoloured (kitchen)", 96, null, "96% (normal 96%)"]] }],
-    meaning: "Colour does not matter while the object still looks like itself." }
+    result: [{ t: "Success, same starts (95% range in brackets)", rows: [["normal", 99, "ref"], ["target recoloured", 99, null, "99% (94–100)"], ["other objects recoloured", 99, null, "99% (95–100)"], ["bowl or plate recoloured (kitchen)", 96, null, "96% (87–99) · normal 96%"]] }],
+    meaning: "Colour causes no measurable loss while the object still looks like itself." }
   ] },
 { id: "q3", c: "--c0", num: "Question 3", short: "Other tasks",
   q: "Can it do a task it was not trained on?", verdict: ["bad", "Mostly not"],
@@ -451,10 +451,10 @@ const QUESTIONS = [
     why: "This is where π0.5 is known to fail. Which part fails?",
     prompts: [["kitchen (trained: wine bottle on the rack)", "put the wine bottle on the stove"], ["grocery scene (trained: alphabet soup)", "Pick the cream cheese and place it in the basket"]],
     videos: [vid("b1_full", "It puts the wine bottle on the rack, the task trained in this kitchen.", "kitchen")],
-    result: [{ t: "Success", rows: [["kitchen, new object", 25], ["kitchen, new target", 0], ["grocery scenes, new object", 36], ["spatial scenes, new object or target", 5, null, "4–5%"], ["spatial scenes, place described in words", 16]] }],
+    result: [{ t: "Success", rows: [["kitchen, new object (6 tasks)", 33], ["kitchen, bottom drawer or bowl in front of the stove", 0], ["kitchen, new target (1 task)", 0], ["grocery scenes, new object", 36], ["spatial scenes, new object or target", 5, null, "4–5%"], ["spatial scenes, place described in words", 16]] }],
     meaning: "Most failures are the scene's trained task done instead (grocery scenes: 135 of 141 failures)." },
   { id: "D1", name: "Same new tasks, other objects removed", n: "830 episodes", sum: "7–36% → 40–75% when the other objects are gone",
-    did: "Same instructions and starting scenes as B1, but every other movable object is removed.",
+    did: "Same instructions and starting scenes as B1, but every other movable object is removed. In 22 of the 250 spatial runs this also removed what the bowl stood on, so the bowl started elsewhere.",
     why: "If it succeeds now, the motion is possible and choosing is what failed.",
     prompts: [["same as B1; example from a grocery scene", "Pick the cream cheese and place it in the basket"]],
     videos: [vid("d1_removed", "Same start. With all objects it takes the soup (trained here); alone, the cream cheese.", "grocery")],
@@ -472,39 +472,39 @@ const QUESTIONS = [
     why: "With the object in hand, does it follow the target in the words?",
     prompts: [["the recorded run's target", "put the cream cheese in the bowl"], ["another target", "put the cream cheese on the plate"]],
     videos: [vid("b2_in_hand", "Same start, cheese in hand. Told “on the plate”, it still goes to the bowl.", "kitchen")],
-    result: [{ t: "Told another target, it went to the recorded run's target", rows: [["cream cheese (bowl)", 68], ["wine bottle (rack)", 45], ["bowl (stove)", 40], ["plate (stove)", 0]] }],
-    meaning: "Holding an object, it often follows habit over the words." },
+    result: [{ t: "Told another target, the object ended nearest the recorded run's target", rows: [["cream cheese (bowl)", 68], ["wine bottle (rack)", 45], ["bowl (stove)", 40], ["plate (stove)", 0]] }],
+    meaning: "Holding an object, it often follows habit over the words. Restarting from the grasp is itself fragile for two objects: told the recorded target, the plate and the wine bottle succeed 5 of 10 times." },
   { id: "D3", name: "Two-part tasks, one part at a time", n: "90 episodes", sum: "91% vs 93% with the whole instruction",
     did: "LIBERO-10 tasks with two parts. Instead of the whole instruction, it gets part 1, then part 2 once the simulator says part 1 is done.",
     why: "Do long tasks fail because of the language or the skill?",
     prompts: [["whole instruction", "put both the alphabet soup and the tomato sauce in the basket"], ["part 1", "pick up the alphabet soup and place it in the basket"], ["part 2", "pick up the tomato sauce and place it in the basket"]],
     videos: [vid("d3_steps", "Part 1, then part 2 from step 134: done.", "long")],
-    result: [{ t: "Success, same starts", rows: [["whole instruction", 93, "ref"], ["one part at a time", 91]] }],
-    meaning: "Splitting the instruction neither helps nor hurts." }
+    result: [{ t: "Success, same starts (95% range in brackets)", rows: [["whole instruction", 93, "ref"], ["one part at a time", 91, null, "91% (83–95)"]] }],
+    meaning: "Splitting the instruction makes no measurable difference. In 9 of the 90 runs the whole task was done before part 2 was given (8 of them “put both moka pots on the stove”)." }
   ] },
 { id: "q4", c: "--c0", num: "Question 4", short: "Where things are",
   q: "Does it know a thing is there, or go where it usually is?", verdict: ["part", "Partly"],
   answer: "It follows an object moved a little. But it learned positions relative to itself: swaps fool it, a move during the reach sends the gripper to the old spot, and moving the whole setup hurts.",
   findings: ["Follows an object moved up to <b>~10 cm</b> before the start (C1).",
-             "Two objects swapped: in grocery scenes it grabs the one in the usual spot <b>51%</b> of the time (C2).",
+             "Two objects swapped: in grocery scenes it first grabs the one in the usual spot <b>51%</b> of the time, the asked-for one <b>40%</b> (C2).",
              "Object moved during the reach: the gripper closes at the old spot <b>80–96%</b> (C4). Whole setup moved 10 cm: <b>64–79%</b> (E4)."],
   exps: [
   { id: "C1", name: "Move the object before the start", n: "682 episodes", sum: "Fine up to ~10 cm, then drops",
-    did: "The object the instruction asks for is moved 5, 10, 15 or 20 cm to a free spot before the run starts.",
+    did: "The object the instruction asks for is moved 5, 10, 15 or 20 cm to a free spot before the run starts. In the spatial scenes 8, 8, 7 and 6 of the 10 tasks had a free spot at these distances.",
     why: "Does it go to where the object is, or to where it usually is?",
     prompts: [["unchanged; example from a grocery scene", "pick up the alphabet soup and place it in the basket"]],
     videos: [vid("c1_shift", "Soup moved 10 cm: done. Moved 20 cm: it touches it but never grasps it.", "grocery")],
     result: [{ t: "Grocery scenes (normal 100%)", rows: [["5 cm", 91], ["10 cm", 77], ["15 cm", 58], ["20 cm", 31]] },
-             { t: "Spatial scenes (normal 99%)", rows: [["5 cm", 88], ["10 cm", 75], ["15 cm", 71], ["20 cm", 66]] }],
-    meaning: "It follows the object up to about 10 cm; further moves fail more often." },
-  { id: "C2", name: "Swap two objects", n: "180 episodes", sum: "Grocery scenes: 51% grab the object in the usual spot",
+             { t: "Spatial scenes (normal 98%)", rows: [["5 cm (8 tasks)", 90], ["10 cm (8 tasks)", 77], ["15 cm (7 tasks)", 66], ["20 cm (6 tasks)", 68]] }],
+    meaning: "It follows the object up to about 10 cm; further moves fail more often. On the 6 spatial tasks run at all four distances: 88, 72, 71, 68%. One task (the bowl in the top drawer of the wooden cabinet) carries much of the drop: 5 of 10 at 5 cm, then 0 of 10." },
+  { id: "C2", name: "Swap two objects", n: "180 episodes", sum: "Grocery scenes: 51% first grab the object in the usual spot, 40% the asked-for one",
     did: "The asked-for object and its nearest neighbour exchange places, so a different object now stands in the usual spot.",
     why: "Does it pick the object by what it is, or by where it usually is?",
     prompts: [["unchanged; example from a grocery scene", "pick up the ketchup and place it in the basket"]],
     videos: [vid("c2_swap", "Ketchup and milk swapped: it grabs the milk, now standing where the ketchup usually is.", "grocery")],
     result: [{ t: "Success (normal 98–100%)", rows: [["kitchen", 60], ["grocery scenes", 25]] },
-             { t: "Grocery scenes: first object grabbed", rows: [["the other object, in the usual spot", 51], ["the asked-for object", 40]] }],
-    meaning: "In the kitchen it mostly follows the object; in the grocery scenes it often goes to the usual spot." },
+             { t: "Grocery scenes: first object grabbed (95% range in brackets)", rows: [["the other object, in the usual spot", 51, null, "51% (41–61)"], ["the asked-for object", 40, null, "40% (31–50)"]] }],
+    meaning: "In the kitchen it mostly follows the object; in the grocery scenes it goes to the usual spot about as often as to the asked-for object." },
   { id: "C3", name: "Remove the object it is asked for", n: "280 episodes", sum: "Grabs a substitute (50–71%) more than air",
     did: "We delete the object the instruction asks for, but keep the instruction. Example: the black bowl is gone, yet the instruction still says “pick up the black bowl…”. The task is now impossible.",
     why: "A robot that memorised positions would reach to where the bowl usually is and close its gripper on empty air. One that looks would stop, or grab something else.",
@@ -514,12 +514,12 @@ const QUESTIONS = [
              { t: "Grabbed another object instead", rows: [["kitchen", 50], ["grocery scenes", 71], ["spatial scenes", 53]] }],
     meaning: "It rarely grasps air at the remembered spot. It grabs a substitute instead, often a similar object." },
   { id: "C4", name: "Move the object while the hand is coming", n: "280 episodes", sum: "Closes at the old spot 80–96% (late move)",
-    did: "When the hand is 20 cm (early) or 10 cm (late) from the object, we teleport the object 10 cm away.",
+    did: "When the hand is 20 cm (early) or 10 cm (late) from the object, we teleport the object 10 cm away. In 7 of the 40 late kitchen runs the move did not happen: the hand never came that close, or was already touching the object.",
     why: "Does it watch the object while reaching, or follow a plan made at the start?",
     prompts: [["unchanged; example from the kitchen", "put the bowl on the stove"]],
     videos: [vid("c4_moved", "The bowl jumps 10 cm as the hand arrives: the gripper closes where it was.", "kitchen")],
-    result: [{ t: "Late move: gripper first closed at the old spot", rows: [["kitchen", 93], ["spatial scenes", 96], ["grocery scenes", 80]] },
-             { t: "Late move: success", rows: [["kitchen", 42], ["spatial scenes", 48], ["grocery scenes", 66]] }],
+    result: [{ t: "Late move: gripper first closed at the old spot (runs that closed it after the move)", rows: [["kitchen", 93, null, "93% (26 of 28)"], ["spatial scenes", 96], ["grocery scenes", 80]] },
+             { t: "Late move: success (runs where the move happened)", rows: [["kitchen", 42, null, "42% (14 of 33)"], ["spatial scenes", 48], ["grocery scenes", 66]] }],
     meaning: "It mostly closes where the object was; in the grocery scenes it recovers more often." },
   { id: "E4", name: "Move the whole setup", n: "300 episodes", sum: "64–79% (normal 100%)",
     did: "The table with everything on it, and the goal areas, shifted 10 cm sideways or farther away. The robot and the cameras stay; distances between objects do not change.",
@@ -531,24 +531,25 @@ const QUESTIONS = [
   ] },
 { id: "q5", c: "--c0", num: "Question 5", short: "Physical skill",
   q: "Once it knows what to do, can it physically do it?", verdict: ["part", "Mostly"],
-  answer: "Grasping is robust. The weak spots are carrying after the grasp, the arm's starting pose, and the wrist camera, which it cannot do without.",
+  answer: "Grasping is robust. The weak spots are the arm's starting pose and the wrist camera, which it cannot do without. Restarting a run right after the grasp is also less reliable.",
   findings: ["Grasp has margin: heavy or slippery objects <b>96–99%</b> (H4). After a forced drop it picks the object up again <b>89%</b> (H2).",
-             "Weak spots: carrying after the grasp <b>68%</b> (D2); arm started in another pose <b>53%</b> (H3).",
+             "Weak spot: arm started in another pose <b>53%</b> (H3). Restarting right after the grasp: <b>68%</b>, largely because of one task (D2).",
              "Without the wrist camera: <b>2%</b> (C5)."],
   exps: [
-  { id: "D2", name: "Start in the middle of a successful run", n: "297 episodes", sum: "Object in the hand: 68%, the weakest step",
-    did: "Runs start from saved moments of successful runs: the hand just above the object, the object just grasped, or the object above its target.",
+  { id: "D2", name: "Start in the middle of a successful run", n: "297 episodes", sum: "Restart right after the grasp: 68%, largely one task",
+    did: "Runs start from saved moments of successful runs: the hand just above the object, the object just grasped, or the object above its target. The runs come from 6 trained kitchen tasks and 4 new object–target pairs.",
     why: "Which movement step is weakest?",
     prompts: [["the task's instruction; example from the kitchen", "put the bowl on the stove"]],
     videos: [vid("d2_staged", "Starting with the bowl in the hand: done. With the wine bottle in the hand: fails.", "kitchen")],
-    result: [{ t: "Success from each starting moment", rows: [["hand above the object", 89], ["object just grasped", 68], ["object above its target", 80]] }],
-    meaning: "Carrying after the grasp is the weakest step." },
+    result: [{ t: "Success from each starting moment, all 10", rows: [["hand above the object", 89], ["object just grasped", 68], ["object above its target", 80]] },
+             { t: "The 6 trained tasks only", rows: [["hand above the object", 100], ["object just grasped", 70], ["object above its target", 85]] }],
+    meaning: "Restarting right after the grasp is the least reliable start (68%), largely because of one task: the wine bottle onto the cabinet top succeeds 10, 1 and 10 of 10 times from the three moments. This may reflect the restart rather than carrying as such." },
   { id: "H2", name: "Drop it on purpose", n: "140 episodes", sum: "Picks it up again 89%",
     did: "Once the object is lifted 4 cm, we force the gripper open for 15 steps.",
     why: "Does it notice and recover?",
     prompts: [["unchanged; example from the kitchen", "put the bowl on the stove"]],
     videos: [vid("h2_drop", "Dropped at step 52, picked up again at step 88, done.", "kitchen")],
-    result: [{ t: "After the drop", rows: [["normal (no drop)", 99, "ref"], ["picked it up again", 89], ["finished the task", 87]] }],
+    result: [{ t: "After the drop (the 135 of 140 runs where it happened)", rows: [["normal (no drop, all 140 starts)", 99, "ref"], ["picked it up again", 89], ["finished the task", 87]] }],
     meaning: "It notices the drop and recovers." },
   { id: "H3", name: "Start the arm in another pose", n: "200 episodes", sum: "79% (±9°) · 53% (±17°)",
     did: "Before the start, every arm joint is turned by a random amount: up to ±0.15 rad (about 9°) or ±0.3 rad (about 17°).",
@@ -562,8 +563,8 @@ const QUESTIONS = [
     why: "How much margin does the grasp have?",
     prompts: [["unchanged; example from a grocery scene", "pick up the bbq sauce and place it in the basket"]],
     videos: [vid("h4_slippery", "Slippery bbq sauce: done.", "grocery")],
-    result: [{ t: "Success, same starts", rows: [["normal", 99, "ref"], ["3 times heavier", 99], ["slippery", 96]] }],
-    meaning: "The grip has margin." },
+    result: [{ t: "Success, same starts (95% range in brackets)", rows: [["normal", 99, "ref"], ["3 times heavier", 99, null, "99% (96–100)"], ["slippery", 96, null, "96% (91–98)"]] }],
+    meaning: "The grip has margin: no measurable loss. With 140 runs each, a loss of up to about 8 points cannot be excluded." },
   { id: "C5", name: "Hide one camera", n: "400 episodes", sum: "No wrist camera: 2%",
     did: "π0.5 sees two cameras: a fixed scene camera and one on the wrist. We hide one of them from the model.",
     why: "What does each camera contribute?",
@@ -585,13 +586,13 @@ const QUESTIONS = [
     prompts: [["example 1", "put the bowl on the stove"], ["example 2", "put the plate in the bowl"], ["example 3", "put the wine bottle on the rack"], ["and", "19 more object–target pairs"]],
     offline: "Offline analysis: no robot movement. We read the network's internal state while it processes saved images.",
     chart: true,
-    meaning: "From layer 4 on, the action part knows the object and the target. For a target it never saw with that object, only 52–64%." },
+    meaning: "From layer 4 on, the action part knows the object and the target. For a target it never saw with that object: 93% at layer 4, but only 53–64% from layer 9 on." },
   { id: "F2", name: "Swap the words inside the network", n: "20 frames × 6 pairs, offline", sum: "Image features carry 78% of the switch",
     did: "We run instruction A, but give the action part the stored word features, or image features, of instruction B. Then we measure how far the action moves from A's towards B's (0% = no change, 100% = B's action).",
     why: "Which path does the instruction take to the actions?",
     prompts: [["A", "put the bowl on the stove"], ["B", "put the plate on the stove"], ["and", "5 more pairs (other object, other target, other task)"]],
     offline: "Offline analysis: no robot movement.",
-    result: [{ t: "How far the action moves towards B's", rows: [["swap the word features", 18, null, "18% (3–27)"], ["swap the image features", 78, null, "78% (74–89)"], ["swap both (check)", 100, "ref"], ["word features, one layer only", 8, null, "≤ 8%"]] }],
+    result: [{ t: "How far the action moves towards B's", rows: [["swap the word features", 18, null, "18% (3–27)"], ["swap the image features", 78, null, "78% (74–89)"], ["swap both (check)", 100, "ref"], ["word features, one layer only (mean of 4 pairs)", 8, null, "≤ 8%"]] }],
     meaning: "The instruction reaches the actions mostly through the image features, which have already absorbed the words." },
   { id: "F3", name: "Where the action part looks", n: "same samples, offline", sum: "3.8% of its attention is on the words",
     did: "We measured the share of the action part's attention on the images, the words and its own tokens, averaged over the 18 layers.",
@@ -608,10 +609,10 @@ const MATRIX = { objs: ["bowl", "plate", "cream cheese", "wine bottle"], tg: ["s
           [[1, 0], null, [7, 2], [0, 8], [0, 0], [0, 0]],
           [[5, 10], [3, 8], [10, 10, 1], [8, 9], [0, 0], [0, 5]],
           [[9, 9], [6, 9], [2, 4], [10, 10, 1], [9, 10, 1], [0, 0]]] };
-const F1 = { obj: [27,46,72,75,96,96,97,98,98,98,98,98,98,98,96,97,96,95], unseen: [52,52,51,53,58,60,62,59,63,63,60,60,60,63,64,63,59,60] };
+const F1 = { obj: [27,46,72,75,96,96,97,98,98,98,98,98,98,98,96,97,96,95], unseen: [27,50,74,74,93,85,81,78,72,64,56,53,55,59,64,62,57,56] };
 
 const TRAIN = [["libero_goal", "open the middle drawer of the cabinet", "libero_goal_33bc4a5a", 43, ""], ["libero_goal", "put the bowl on the stove", "libero_goal_33bc4a5a", 48, ""], ["libero_goal", "put the wine bottle on top of the cabinet", "libero_goal_33bc4a5a", 47, ""], ["libero_goal", "open the top drawer and put the bowl inside", "libero_goal_33bc4a5a", 36, ""], ["libero_goal", "put the bowl on top of the cabinet", "libero_goal_33bc4a5a", 46, ""], ["libero_goal", "push the plate to the front of the stove", "libero_goal_33bc4a5a", 33, ""], ["libero_goal", "put the cream cheese in the bowl", "libero_goal_33bc4a5a", 40, ""], ["libero_goal", "turn on the stove", "libero_goal_33bc4a5a", 50, ""], ["libero_goal", "put the bowl on the plate", "libero_goal_33bc4a5a", 49, ""], ["libero_goal", "put the wine bottle on the rack", "libero_goal_33bc4a5a", 36, ""], ["libero_spatial", "pick up the black bowl between the plate and the ramekin and place it on the plate", "libero_spatial_0b8d8a65", 45, ""], ["libero_spatial", "pick up the black bowl next to the ramekin and place it on the plate", "libero_spatial_df9278d2", 45, ""], ["libero_spatial", "pick up the black bowl from table center and place it on the plate", "libero_spatial_a53cc7b7", 46, ""], ["libero_spatial", "pick up the black bowl on the cookie box and place it on the plate", "libero_spatial_c513fafc", 43, ""], ["libero_spatial", "pick up the black bowl in the top drawer of the wooden cabinet and place it on the plate", "libero_spatial_b3f57151", 42, ""], ["libero_spatial", "pick up the black bowl on the ramekin and place it on the plate", "libero_spatial_f8c16e20", 39, ""], ["libero_spatial", "pick up the black bowl next to the cookie box and place it on the plate", "libero_spatial_2f5ed09d", 46, ""], ["libero_spatial", "pick up the black bowl on the stove and place it on the plate", "libero_spatial_da619c34", 35, ""], ["libero_spatial", "pick up the black bowl next to the plate and place it on the plate", "libero_spatial_d0757e95", 47, ""], ["libero_spatial", "pick up the black bowl on the wooden cabinet and place it on the plate", "libero_spatial_883a358a", 44, ""], ["libero_object", "pick up the alphabet soup and place it in the basket", "libero_object_055e56ee", 44, ""], ["libero_object", "pick up the cream cheese and place it in the basket", "libero_object_3034373e", 45, ""], ["libero_object", "pick up the salad dressing and place it in the basket", "libero_object_8dad0971", 47, ""], ["libero_object", "pick up the bbq sauce and place it in the basket", "libero_object_aa0661c1", 46, ""], ["libero_object", "pick up the ketchup and place it in the basket", "libero_object_511d36a6", 45, ""], ["libero_object", "pick up the tomato sauce and place it in the basket", "libero_object_86389b22", 42, ""], ["libero_object", "pick up the butter and place it in the basket", "libero_object_99d7dffd", 45, ""], ["libero_object", "pick up the milk and place it in the basket", "libero_object_ec00b51f", 45, ""], ["libero_object", "pick up the chocolate pudding and place it in the basket", "libero_object_4ec2bbfc", 50, ""], ["libero_object", "pick up the orange juice and place it in the basket", "libero_object_e8979195", 45, ""], ["libero_10", "put both the alphabet soup and the tomato sauce in the basket", "libero_10_4688cad5", 33, "Living room 2"], ["libero_10", "put both the cream cheese box and the butter in the basket", "libero_10_4688cad5", 49, "Living room 2"], ["libero_10", "turn on the stove and put the moka pot on it", "libero_10_773c4dce", 41, "Kitchen 3"], ["libero_10", "put the black bowl in the bottom drawer of the cabinet and close it", "libero_10_bd7dfed4", 35, "Kitchen 4"], ["libero_10", "put the white mug on the left plate and put the yellow and white mug on the right plate", "libero_10_a5b2a137", 38, "Living room 5"], ["libero_10", "pick up the book and place it in the back compartment of the caddy", "libero_10_8a8b1e3d", 41, "Study 1"], ["libero_10", "put the white mug on the plate and put the chocolate pudding to the right of the plate", "libero_10_d0717c4f", 36, "Living room 6"], ["libero_10", "put both the alphabet soup and the cream cheese box in the basket", "libero_10_d80e4158", 43, "Living room 1"], ["libero_10", "put both moka pots on the stove", "libero_10_6e64c4d4", 29, "Kitchen 8"], ["libero_10", "put the yellow and white mug in the microwave and close it", "libero_10_c82ae87c", 34, "Kitchen 6"]];  // [suite, trained instruction, scene image, demonstrations, room] from make_scenes.py
-const GLANCE = {"A1": ["all 40", "5 prompts × 10 starts", "success; did another trained task"], "A2": ["10 kitchen tasks", "20 starts, the same for all 10", "success; different outcomes per start"], "A3": ["all 40 (offline)", "5 runs × 3 moments × 6 versions × 6 samples", "change of the planned action vs resampling; turn of the hand's direction"], "B1": ["59 LangGap new tasks", "10 starts", "success; first grasp; did a trained task"], "B2": ["kitchen: 18 object → target pairs", "10 starts taken mid-grasp from recorded runs", "success; which target the object ended at"], "B3": ["the 20-task set", "5 rewordings × 10 starts", "success, start by start against A1"], "B5": ["28 one-object tasks", "10 starts", "did the scene's trained task; first grasp"], "C1": ["20 (grocery + spatial)", "4 distances × 10 starts", "success; hand reached the new or the old place"], "C2": ["18 (kitchen + grocery)", "10 starts", "success; first grasp: asked-for or swapped-in object"], "C3": ["28 one-object tasks", "10 starts", "gripper closed within 8 cm of the empty spot; grabbed another object"], "C4": ["28 one-object tasks", "2 timings × 5 starts", "first close nearer the old or the new place; success"], "C5": ["all 40", "2 cameras × 5 starts", "success"], "D1": ["83 (28 trained + 55 LangGap new)", "10 starts", "success, start by start against A1 / B1"], "D2": ["10 kitchen tasks", "3 moments × 10 recorded runs", "success from that moment"], "D3": ["9 LIBERO-10 two-part tasks", "10 starts", "success; when each part was done"], "D4": ["kitchen: 22 object → target pairs", "2 versions × 10 starts", "success per pair"], "E1": ["27 LIBERO-90 tasks", "10 official starts", "success; first grasp"], "E2": ["the 20-task set", "4 changes × 5 starts", "success, start by start against A1"], "E3": ["the 20-task set", "3 colours × 5 starts", "success, start by start against A1"], "E4": ["the 20-task set", "3 moves × 5 starts", "success, start by start against A1"], "E5": ["the 20-task set (+5 kitchen)", "2 changes × 5 starts (+10)", "success, start by start against A1"], "H1": ["10 kitchen tasks", "2 switch times × 10 starts", "new task done; first task done"], "H2": ["28 one-object tasks", "5 starts", "picked up again; success"], "H3": ["the 20-task set", "2 poses × 5 starts", "success, start by start against A1"], "H4": ["28 one-object tasks", "2 changes × 5 starts", "success, start by start against A1"], "F1": ["kitchen images (offline)", "100 start images × 22 instructions", "probe accuracy per layer"], "F2": ["kitchen images (offline)", "20 images × 6 instruction pairs", "how far the action moves toward the other instruction"], "F3": ["kitchen images (offline)", "the F1 samples", "share of attention on images, words, tokens"]};  // tasks used, runs per task, what is counted
+const GLANCE = {"A1": ["all 40", "5 prompts × 10 starts", "success; did another trained task"], "A2": ["10 kitchen tasks", "20 starts, the same for all 10", "success; different outcomes per start"], "A3": ["all 40 (offline)", "586 frames (5 runs × 3 moments) × 6 versions × 6 samples", "change of the planned action vs resampling; turn of the hand's direction"], "B1": ["59 LangGap new tasks", "10 starts", "success; first grasp; did a trained task"], "B2": ["kitchen: 18 object → target pairs", "10 starts taken mid-grasp from recorded runs", "success; which target the object ended at"], "B3": ["the 20-task set", "5 rewordings × 10 starts", "success, start by start against A1"], "B5": ["28 one-object tasks", "10 starts", "did the scene's trained task; first grasp"], "C1": ["20 (grocery + spatial)", "4 distances × 10 starts; spatial: where a free spot existed (682 of 800 run)", "success; hand reached the new or the old place"], "C2": ["18 (kitchen + grocery)", "10 starts", "success; first grasp: asked-for or swapped-in object"], "C3": ["28 one-object tasks", "10 starts", "gripper closed within 8 cm of the empty spot; grabbed another object"], "C4": ["28 one-object tasks", "2 timings × 5 starts", "first close nearer the old or the new place; success"], "C5": ["all 40", "2 cameras × 5 starts", "success"], "D1": ["83 (28 trained + 55 LangGap new)", "10 starts", "success, start by start against A1 / B1"], "D2": ["kitchen: 6 trained tasks + 4 new pairs", "3 moments × 10 recorded runs", "success from that moment"], "D3": ["9 LIBERO-10 two-part tasks", "10 starts", "success; when each part was done"], "D4": ["kitchen: 22 object → target pairs", "2 versions × 10 starts", "success per pair"], "E1": ["27 LIBERO-90 tasks", "10 official starts", "success; first grasp"], "E2": ["the 20-task set", "4 changes × 5 starts", "success, start by start against A1"], "E3": ["the 20-task set", "3 colours × 5 starts", "success, start by start against A1"], "E4": ["the 20-task set", "3 moves × 5 starts", "success, start by start against A1"], "E5": ["the 20-task set (+5 kitchen)", "2 changes × 5 starts (+10); target recoloured: 18 of the 20", "success, start by start against A1"], "H1": ["10 kitchen tasks", "2 switch times × 10 starts", "new task done; first task done"], "H2": ["28 one-object tasks", "5 starts", "picked up again; success"], "H3": ["the 20-task set", "2 poses × 5 starts", "success, start by start against A1"], "H4": ["28 one-object tasks", "2 changes × 5 starts", "success, start by start against A1"], "F1": ["kitchen images (offline)", "100 start images × 22 instructions", "probe accuracy per layer"], "F2": ["kitchen images (offline)", "20 images × 6 instruction pairs", "how far the action moves toward the other instruction"], "F3": ["kitchen images (offline)", "the F1 samples", "share of attention on images, words, tokens"]};  // tasks used, runs per task, what is counted
 const TIMES = { series: {"A1": 268.8, "A2": 16.2, "B1": 119.7, "B2": 25.4, "B3": 89.9, "B5": 35.2, "C1": 92.5, "C2": 31.0, "C3": 55.2, "C4": 42.1, "C5": 81.8, "D1": 111.5, "D2": 23.4, "D3": 17.1, "D4": 57.6, "E1": 55.0, "E2": 35.7, "E3": 27.2, "E4": 37.2, "E5": 21.3, "H1": 36.7, "H2": 17.4, "H3": 25.9, "H4": 24.9}, episodes: {"A1": 2000, "A2": 200, "B1": 590, "B2": 180, "B3": 1000, "B5": 280, "C1": 682, "C2": 180, "C3": 280, "C4": 280, "C5": 400, "D1": 830, "D2": 297, "D3": 90, "D4": 440, "E1": 270, "E2": 400, "E3": 300, "E4": 300, "E5": 240, "H1": 200, "H2": 140, "H3": 200, "H4": 280}, offline: {"A3": 62, "F1": 8, "F2": 18, "F3": 0},
   wall: 366.3, total: 385.3, colours: 2.7 };  // minutes
 const SERIES_TOTAL = Object.values(TIMES.series).reduce((a, b) => a + b, 0), SPEEDUP = SERIES_TOTAL / TIMES.wall;
@@ -724,14 +725,14 @@ function famKey() {
 }
 
 function cover() {
-  return `<div class="cover"><div class="kicker">LIBERO simulation · official π0.5 (pi05_libero) as released · 10,190 episodes · nothing trained</div>
+  return `<div class="cover"><div class="kicker">LIBERO simulation · the released π0.5 checkpoint (pi05_libero), evaluated as is · 10,059 episodes</div>
     <h1>What does π0.5 really understand, and what can it do?</h1>
     <p class="cover-answer">It follows the instructions it was trained on, but a familiar scene pulls it to the task it learned there. <b>When a new instruction fails, the problem is mostly choosing what to act on, not the movement.</b></p>
     ${famKey()}
     <div class="qcards">${QUESTIONS.map(q => `<button class="qcard" type="button" data-go="${q.id}" style="--c: var(${q.c})"><span class="qn">${q.num}</span><h3>${esc(q.q)}</h3>
       <span><span class="chip ${q.verdict[0]}">${q.verdict[1]}</span></span><p>${esc(q.answer)}</p></button>`).join("")}</div>
-    <div class="facts"><div class="fact"><b>40</b><span>tasks it was trained on (1,693 demos)</span></div><div class="fact"><b>10,190</b><span>simulated episodes</span></div><div class="fact"><b>28</b><span>experiments</span></div>
-      <div class="fact"><b>10</b><span>runs per setup, same starting scenes</span></div><div class="fact"><b>6.4 h</b><span>on 2 GPUs (≈ 24 h in series)</span></div><div class="fact"><b>0</b><span>models trained or fine-tuned</span></div></div></div>`;
+    <div class="facts"><div class="fact"><b>40</b><span>tasks it was trained on (1,693 demos)</span></div><div class="fact"><b>10,059</b><span>simulated episodes</span></div><div class="fact"><b>28</b><span>experiments</span></div>
+      <div class="fact"><b>5–20</b><span>runs per setup (mostly 10), same starting scenes</span></div><div class="fact"><b>6.4 h</b><span>on 2 GPUs (≈ 24 h in series)</span></div><div class="fact"><b>1</b><span>model: the released checkpoint</span></div></div></div>`;
 }
 
 function question(q) {
@@ -759,14 +760,14 @@ function experiment(x) {
 function compute() {
   return `<div class="qhead"><span class="qn" style="color: var(--c0)">Method</span><h2>How a result is computed</h2></div>
     <div class="defs"><div class="def"><b>Episode</b><span>One run in the simulator: one task, one starting scene, until the goal is reached or the step limit. It gives one success or failure. About 3–20 seconds of compute.</span></div>
-      <div class="def"><b>Setup</b><span>One task under one condition (e.g. “bowl on the stove, no words”): usually 10 episodes from 10 different starting scenes.</span></div>
+      <div class="def"><b>Setup</b><span>One task under one condition (e.g. “bowl on the stove, no words”): 5 to 20 episodes, each from a different starting scene. 749 of the 1,259 setups have 10, 500 have 5, and 10 have 20.</span></div>
       <div class="def"><b>Offline experiment</b><span>A3, F1–F3: the robot never moves. π0.5 is only given saved camera images and asked for actions, or its internal state is read.</span></div></div>
     <ol class="steps">
-      <li><span><b>Starting scene.</b> For episode <i>e</i> of task <i>T</i> the random generator is seeded from “T/e”; LIBERO then places the objects at random inside the task's allowed areas. So every version of a task (normal, no words, swapped, recoloured…) starts from the <b>same 10 scenes</b>.</span></li>
+      <li><span><b>Starting scene.</b> For episode <i>e</i> of task <i>T</i> the random generator is seeded from “T/e”; LIBERO then places the objects at random inside the task's allowed areas. So every version of a task (normal, no words, swapped, recoloured…) begins from the <b>same starting scenes</b>.</span></li>
       <li><span><b>Running.</b> π0.5 gets both camera images and the prompt and returns 10 actions; 5 are executed, then it is asked again. At most 300 steps (LIBERO-10: 520, LIBERO-90: 400).</span></li>
       <li><span><b>Success.</b> After every step the simulator checks the task's goal from its task file, e.g. “the bowl is on the stove's cooking area” or “the top drawer is open”. No person or model judges it. The episode stops at success.</span></li>
       <li><span><b>Extra measurements.</b> Logged every step: the first object grasped, objects touched, where the gripper started to close, the hand's path, object positions at start and end, and whether another trained task's goal came true.</span></li>
-      <li><span><b>Numbers.</b> Rate = successes ÷ episodes, with a 95% range. A condition is compared with the normal run start by start, counting only the starts where one of the two succeeded and the other did not (McNemar test). Rates are pooled per suite; nothing is claimed from one task's 10 episodes.</span></li>
+      <li><span><b>Numbers.</b> Rate = successes ÷ episodes, with a 95% range. A condition is compared with the normal run start by start, counting only the starts where one of the two succeeded and the other did not (McNemar test). Rates are pooled per suite; a single task's 10 runs appear only as examples. Repeating a run with nothing changed altered the outcome in 13 of 100 LIBERO-10 runs, so differences of a few points are within run-to-run variation.</span></li>
     </ol>`;
 }
 
@@ -796,12 +797,12 @@ function glance() {
         <li>The parallel run was ${SPEEDUP.toFixed(1)}× faster. Episode times were measured with 4 copies sharing 2 GPUs; one copy alone steps about 20% faster.</li></ul></div>
     </div>
     <div class="glance-wrap"><table class="glance"><tr><th>Exp</th><th>Name</th><th>Scenes</th><th>Tasks used</th><th>Per task</th><th style="text-align:right">Episodes</th><th>What is counted</th><th style="text-align:right">2 GPUs</th><th style="text-align:right">In series</th></tr>${rows}</table></div>
-    <p class="vcap" style="margin-top:8px">“2 GPUs” = the experiment's share of the parallel run (its series time ÷ ${SPEEDUP.toFixed(1)}). The 20-task set = 8 kitchen, 6 grocery and 6 spatial tasks. One-object tasks = the 28 trained tasks with a single object to grasp.</p>`;
+    <p class="vcap" style="margin-top:8px">“2 GPUs” = the experiment's share of the parallel run (its series time ÷ ${SPEEDUP.toFixed(1)}). The 20-task set = 8 kitchen, 6 grocery and 6 spatial tasks. One-object tasks = the 28 trained tasks with a single object to grasp. 10,190 runs were planned; 131 could not be set up (C1: 118 spatial runs with no free spot for the moved object; D2: 3; E5: 10).</p>`;
 }
 
 const app = document.getElementById("app"), slideEl = document.getElementById("slide"), side = document.getElementById("side");
 
-side.innerHTML = famTag(`<div class="side-title">π0.5 capability map</div><div class="side-sub">Official pi05_libero · LIBERO · nothing trained</div>
+side.innerHTML = famTag(`<div class="side-title">π0.5 capability map</div><div class="side-sub">Released pi05_libero, evaluated as is · LIBERO</div>
   <button class="nav-q" type="button" data-go="overview" style="--c: var(--c0)"><i class="dot"></i><span><b>Start</b>Overview</span></button>
   <div class="nav-group" style="--c: var(--c0)"><button class="nav-q" type="button" data-go="training"><i class="dot"></i><span><b>Training data</b>40 tasks, 30 scenes</span></button>
     ${SUITES.map(su => `<button class="nav-x" type="button" data-go="${su.key}" style="--c: var(--f-${su.fam})"><i class="sw"></i><span class="nt"><b>${FAMS[su.fam].name}</b><small>${FAMS[su.fam].name === su.name ? FAMS[su.fam].suite : su.name}</small></span></button>`).join("")}</div>
